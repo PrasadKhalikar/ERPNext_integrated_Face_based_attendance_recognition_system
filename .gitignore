@@ -1,0 +1,67 @@
+##############################
+# Python Backend
+##############################
+
+# Virtual environment
+venv/
+__pycache__/
+*.pyc
+
+# Local DB + embeddings + images
+employee_faces/
+sites/
+faiss_data/
+
+# Python secrets
+.env
+.env*.local
+
+##############################
+# React Native + Expo App
+##############################
+
+node_modules/
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Typescript cache
+*.tsbuildinfo
+
+# Metro bundler
+.metro-health-check*
+
+##############################
+# Native Android/iOS Folders
+##############################
+
+android/
+ios/
+
+# Keystore and signing files
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+##############################
+# Logs
+##############################
+
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+##############################
+# OS files
+##############################
+
+.DS_Store
+
+##############################
+# Virtualenv auto file (optional)
+##############################
+*.orig.*
