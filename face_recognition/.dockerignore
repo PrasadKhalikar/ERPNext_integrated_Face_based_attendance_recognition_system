@@ -1,0 +1,12 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+venv
+.env
+*.sqlite
+*.db
+*.index
+dist
+build
+node_modules

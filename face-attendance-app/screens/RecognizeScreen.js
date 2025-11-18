@@ -17,6 +17,7 @@ import { API } from "../utils/config";
 import { getGPS } from "../utils/location";
 import { captureBase64 } from "../utils/camera";
 import { playPunchAudio } from "../utils/audio";
+console.log("API from util =>", API);
 
 export default function RecognizeScreen({ route }) {
   const { site_id } = route.params;

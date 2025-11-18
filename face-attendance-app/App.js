@@ -9,6 +9,7 @@ import RegisterScreen from "./screens/RegisterScreen";
 import RecognizeScreen from "./screens/RecognizeScreen";
 
 const Stack = createNativeStackNavigator();
+console.log("API_URL from env =>", process.env.API_URL);
 
 export default function App() {
   return (

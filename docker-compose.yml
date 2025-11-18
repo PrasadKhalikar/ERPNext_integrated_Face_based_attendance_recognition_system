@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  face_backend:
+    build:
+      context: ./face_recognition
+      dockerfile: Dockerfile
+    container_name: face_backend
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    env_file:
+      - ./face_recognition/.env
+    volumes:
+      - ./face_recognition/employee_faces:/app/employee_faces
+      - ./face_recognition/sites:/app/sites
+      - ./face_recognition/faiss_data:/app/faiss_data
+      - ./face_recognition/models:/app/models
+      - ./face_recognition/logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "face-attendance-app",
+    "name": "ATPL attendance",
     "slug": "face-attendance-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -20,10 +20,17 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "usesCleartextTraffic": true,
+      "package": "com.prasadsunilkhalikar.faceattendanceapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "141cfcdf-bf33-42ca-aa26-10a41382709a"
+      }
     }
   }
 }
