@@ -23,6 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "usesCleartextTraffic": true,
+      "permissions": ["INTERNET"],
       "package": "com.prasadsunilkhalikar.faceattendanceapp"
     },
     "web": {
