@@ -19,6 +19,9 @@ from sqlalchemy import create_engine, Column, String, Integer, JSON as JSONField
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from fastapi import File, UploadFile, Form
+from typing import List
+
 import requests
 import insightface
 import faiss
@@ -331,63 +334,80 @@ def health():
 # ===========================================================
 
 @app_api.post("/register_multiple")
-def register(req: RegisterMultipleRequest):
+async def register_multiple(
+    site_id: str = Form(...),
+    employee_id: str = Form(...),
+    employee_name: str = Form(...),
+    files: List[UploadFile] = File(...)
+):
+    session, Employee = get_site_db(site_id)
 
-    session, Employee = get_site_db(req.site_id)
-
-    emp = session.query(Employee).filter(Employee.id == req.employee_id).first()
+    emp = session.query(Employee).filter(Employee.id == employee_id).first()
     if not emp:
-        emp = Employee(id=req.employee_id, name=req.employee_name, embeddings=[], total_images=0)
+        emp = Employee(
+            id=employee_id,
+            name=employee_name,
+            embeddings=[],
+            total_images=0
+        )
         session.add(emp)
         session.commit()
         session.refresh(emp)
 
-    index, vectors, store = load_faiss_for_site(req.site_id)
+    index, vectors, store = load_faiss_for_site(site_id)
 
-    site_dir = f"{ROOT_FACE_DIR}/{req.site_id}"
-    emp_dir = f"{site_dir}/{req.employee_id}"
+    site_dir = f"{ROOT_FACE_DIR}/{site_id}"
+    emp_dir = f"{site_dir}/{employee_id}"
     os.makedirs(emp_dir, exist_ok=True)
 
     saved, failed = 0, 0
 
-    for i, image_b64 in enumerate(req.images, start=1):
-        img = base64_to_bgr(image_b64)
-        if img is None:
+    for i, file in enumerate(files, start=1):
+        try:
+            content = await file.read()
+            arr = np.frombuffer(content, np.uint8)
+            img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+
+            if img is None:
+                failed += 1
+                continue
+
+            emb = extract_embedding(img)
+            if emb is None:
+                failed += 1
+                continue
+
+            fname = f"{employee_id}_{int(time.time())}_{i}.jpg"
+            cv2.imwrite(os.path.join(emp_dir, fname), img)
+
+            emb_vec = emb.reshape(1, EMBEDDING_DIM)
+            vectors = np.vstack([vectors, emb_vec]) if vectors.size else emb_vec
+            index.add(emb_vec)
+
+            vid = vectors.shape[0] - 1
+            store.append({"employee_id": employee_id, "vector_id": vid})
+
+            emp.embeddings.append({
+                "file": fname,
+                "vector_id": vid
+            })
+
+            saved += 1
+
+        except Exception as e:
+            print("Image error:", e)
             failed += 1
-            continue
-
-        emb = extract_embedding(img)
-        if emb is None:
-            failed += 1
-            continue
-
-        # Save image
-        fname = f"{req.employee_id}_{int(time.time())}_{i}.jpg"
-        cv2.imwrite(os.path.join(emp_dir, fname), img)
-
-        # Add to FAISS
-        emb_vec = emb.reshape(1, EMBEDDING_DIM)
-        vectors = np.vstack([vectors, emb_vec])
-        index.add(emb_vec)
-
-        vid = vectors.shape[0] - 1
-        store.append({"employee_id": req.employee_id, "vector_id": vid})
-
-        # Save in DB
-        emp.embeddings.append({"file": fname, "vector_id": vid})
-        saved += 1
 
     emp.total_images += saved
     session.commit()
-
-    save_faiss_for_site(req.site_id, index, vectors, store)
+    save_faiss_for_site(site_id, index, vectors, store)
 
     return {
         "success": True,
         "saved": saved,
-        "failed": failed,
-        "employee_id": req.employee_id
+        "failed": failed
     }
+
 
 
 # ===========================================================
