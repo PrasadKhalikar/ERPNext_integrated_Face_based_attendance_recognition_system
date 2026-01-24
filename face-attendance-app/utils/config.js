@@ -1,13 +1,22 @@
 // utils/config.js
 import Constants from "expo-constants";
-import { API_URL as ENV_API_URL } from "@env"; // may be undefined in production
 
-// Try (1) the @env value, (2) expo extra (runtime), (3) fallback to a hard-coded default
-const expoExtra =
-  (Constants.expoConfig && Constants.expoConfig.extra) ||
-  (Constants.manifest && Constants.manifest.extra) ||
-  {};
+// Get API_URL from expo-constants (app.json extra)
+// This works in both Expo Go and standalone builds
+const getApiUrl = () => {
+  // For Expo SDK 54, use Constants.expoConfig.extra
+  const extra = Constants.expoConfig?.extra || Constants.manifest?.extra || {};
+  const apiUrl = extra.API_URL || "https://face.infoprosys.co.in";
+  
+  // Remove trailing slash if present
+  return apiUrl.replace(/\/+$/, "");
+};
 
-export const API = ENV_API_URL || expoExtra.API_URL || "https://face.infoprosys.co.in";
+export const API = getApiUrl();
 
-console.log("API from util =>", API);
+// Debug logging (helps identify issues in APK)
+console.log("=== API Configuration ===");
+console.log("API URL:", API);
+console.log("Constants.expoConfig?.extra:", Constants.expoConfig?.extra);
+console.log("Constants.manifest?.extra:", Constants.manifest?.extra);
+console.log("=========================");

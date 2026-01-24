@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ATPL attendance",
+    "name": "ATPL Attendance",
     "slug": "face-attendance-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,24 +16,26 @@
       "supportsTablet": true
     },
     "android": {
-      "icon":"./assets/icon.png",
+      "icon": "./assets/icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
       "usesCleartextTraffic": true,
-      "permissions": ["INTERNET"],
+      "permissions": [
+        "INTERNET"
+      ],
       "package": "com.prasadsunilkhalikar.faceattendanceapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-       "API_URL": "https://face.infoprosys.co.in",
-      "eas": {
-        "projectId": "141cfcdf-bf33-42ca-aa26-10a41382709a"
-      }
+      "API_URL": "https://face.infoprosys.co.in"
+    },
+    "eas": {
+      "projectId": "141cfcdf-bf33-42ca-aa26-10a41382709a"
     }
   }
 }
