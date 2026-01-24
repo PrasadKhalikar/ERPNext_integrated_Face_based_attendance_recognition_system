@@ -30,6 +30,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
+       "API_URL": "https://face.infoprosys.co.in",
       "eas": {
         "projectId": "141cfcdf-bf33-42ca-aa26-10a41382709a"
       }
