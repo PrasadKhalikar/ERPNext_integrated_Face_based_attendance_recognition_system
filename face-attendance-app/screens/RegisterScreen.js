@@ -11,8 +11,8 @@ import {
   SafeAreaView
 } from "react-native";
 import { CameraView } from "expo-camera";
-import axios from "axios";
 import { API } from "../utils/config";
+import * as ImageManipulator from "expo-image-manipulator";
 
 import { captureBase64 } from "../utils/camera";
 
@@ -25,44 +25,78 @@ export default function RegisterScreen({ route, navigation }) {
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(false);
 
- async function takePhoto() {
-  const base64 = await captureBase64(cameraRef);
-  if (!base64) return;
+
+async function takePhoto() {
+  const photo = await cameraRef.current.takePictureAsync({
+    base64: true,
+    quality: 0.6,
+    isImageMirror: true,
+  });
+
+  const compressed = await ImageManipulator.manipulateAsync(
+    photo.uri,
+    [{ resize: { width: 720 } }],
+    {
+      compress: 0.6,
+      format: ImageManipulator.SaveFormat.JPEG,
+      base64: true,
+    }
+  );
+
+  const base64 = "data:image/jpeg;base64," + compressed.base64;
 
   const newImages = [...images, base64];
   setImages(newImages);
-  setIndex(newImages.length);  // counter is always correct
+  setIndex(newImages.length);
 
-  // Auto-submit when max reached
-  if (newImages.length === MAX) {
-    submit();
-  }
+  if (newImages.length === MAX) submit();
 }
 
 
-  async function submit() {
-    setLoading(true);
 
-    try {
-      const payload = {
-        site_id,
-        employee_id: employee.name,
-        employee_name: employee.employee_name,
-        images,
-      };
+async function submit() {
+  setLoading(true);
 
-      const res = await axios.post(`${API}/register_multiple`, payload);
+  try {
+    const formData = new FormData();
 
-      if (res.data.success) {
-        Alert.alert("Success", "Employee registered!");
-        navigation.goBack();
-      }
-    } catch (err) {
-      Alert.alert("Error", err.message);
+    formData.append("site_id", site_id);
+    formData.append("employee_id", employee.name);
+    formData.append("employee_name", employee.employee_name);
+
+    images.forEach((uri, i) => {
+      formData.append("files", {
+        uri, // data:image/jpeg;base64,...
+        name: `selfie_${i}.jpg`,
+        type: "image/jpeg",
+      });
+    });
+
+  const response = await fetch(`${API}/register_multiple`, {
+  method: "POST",
+  body: formData,
+});
+
+const text = await response.text();
+console.log("RAW RESPONSE:", text);
+//Alert.alert("Server response", text.slice(0, 300));
+
+
+    const data = await response.json();
+
+    if (data.success) {
+      Alert.alert("Success", "Employee registered!");
+      navigation.goBack();
+    } else {
+      Alert.alert("Error", JSON.stringify(data));
     }
 
+  } catch (err) {
+    Alert.alert("Error", err.message);
+  } finally {
     setLoading(false);
   }
+}
 
   return (
     <SafeAreaView style={styles.container}>

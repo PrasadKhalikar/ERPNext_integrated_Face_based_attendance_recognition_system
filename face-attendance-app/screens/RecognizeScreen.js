@@ -144,7 +144,7 @@ export default function RecognizeScreen({ route }) {
           </View>
 
           <Text style={styles.splashTitle}>
-            {splash.log_type === "IN" ? "✔ PUNCHED IN" : "✔ PUNCHED OUT"}
+            {splash.log_type === "IN" ? " PUNCHED IN" : " PUNCHED OUT"}
           </Text>
 
           <Text style={styles.employeeName}>{splash.employee_name}</Text>
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.75)",
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: "#00ff88",
+    borderColor: "#91ffa9ff",
     width: "70%",
   },
 
@@ -214,14 +214,14 @@ const styles = StyleSheet.create({
     borderRadius: 65,
     overflow: "hidden",
     borderWidth: 3,
-    borderColor: "#00ff88",
+    borderColor: "#71ffbdff",
     marginBottom: 15,
   },
 
   splashPhoto: { width: "100%", height: "100%" },
 
   splashTitle: {
-    color: "#00ff88",
+    color: "#4fffadff",
     fontSize: 26,
     fontWeight: "900",
     marginBottom: 10,

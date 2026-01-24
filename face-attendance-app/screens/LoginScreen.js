@@ -23,7 +23,8 @@ export default function LoginScreen({ navigation }) {
   // 🔧 Auto-fix URL (add https:// if missing)
   function normalizeUrl(url) {
     if (!url.startsWith("http://") && !url.startsWith("https://")) {
-      return "https://" + url; // default to https
+      return "https://" + url; // default to https------------------
+      
     }
     return url;
   }
