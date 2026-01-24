@@ -8,12 +8,13 @@ import {
   TextInput,
   Alert,
 } from "react-native";
-import { load } from "../utils/storage";
+import { load, remove } from "../utils/storage";
 
 export default function HomeScreen({ navigation }) {
   const [session, setSession] = useState(null);
   const [pinModalVisible, setPinModalVisible] = useState(false);
   const [enteredPIN, setEnteredPIN] = useState("");
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -39,6 +40,32 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
+  async function handleLogout() {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await remove("session");
+              setMenuVisible(false);
+              navigation.replace("Login");
+            } catch (error) {
+              Alert.alert("Error", "Failed to logout. Please try again.");
+            }
+          },
+        },
+      ]
+    );
+  }
+
   if (!session) {
     return (
       <View style={styles.container}>
@@ -49,7 +76,16 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Face Attendance</Text>
+      {/* Header with menu button */}
+      <View style={styles.header}>
+        <Text style={styles.title}>Face Attendance</Text>
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={() => setMenuVisible(true)}
+        >
+          <Text style={styles.menuIcon}>⋮</Text>
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity style={styles.adminButton} onPress={openAdminPanel}>
         <Text style={styles.btnText}>Admin Panel</Text>
@@ -62,6 +98,28 @@ export default function HomeScreen({ navigation }) {
         <Text style={styles.btnText}>Attendance</Text>
       </TouchableOpacity>
 
+      {/* Menu Modal */}
+      <Modal transparent visible={menuVisible} animationType="fade" onRequestClose={() => setMenuVisible(false)}>
+        <TouchableOpacity
+          style={styles.modalWrapper}
+          activeOpacity={1}
+          onPress={() => setMenuVisible(false)}
+        >
+          <View style={styles.menuContainer} onStartShouldSetResponder={() => true}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuVisible(false);
+                handleLogout();
+              }}
+            >
+              <Text style={styles.menuItemText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* PIN Modal */}
       <Modal transparent visible={pinModalVisible} animationType="fade">
         <View style={styles.modalWrapper}>
           <View style={styles.modalBox}>
@@ -107,11 +165,61 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
 
+  header: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 30,
+    paddingTop: 50,
+    paddingBottom: 20,
+  },
+
   title: {
     fontSize: 32,
     fontWeight: "900",
     color: "#fff",
     marginBottom: 40,
+  },
+
+  menuButton: {
+    padding: 10,
+    marginTop: -20,
+  },
+
+  menuIcon: {
+    fontSize: 28,
+    color: "#fff",
+    fontWeight: "bold",
+  },
+
+  menuContainer: {
+    position: "absolute",
+    top: 80,
+    right: 20,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    minWidth: 150,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
+  menuItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+
+  menuItemText: {
+    fontSize: 16,
+    color: "#d32f2f",
+    fontWeight: "600",
   },
 
   adminButton: {
